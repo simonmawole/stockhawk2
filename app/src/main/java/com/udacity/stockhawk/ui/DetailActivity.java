@@ -9,13 +9,19 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.utils.EntryXComparator;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -64,29 +70,62 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if(data.moveToFirst()) {
-            Timber.d("COUNT="+data.getCount());
-            List<Entry> entries = new ArrayList<Entry>();
+            List<Entry> entries = new ArrayList<>();
 
-            for (int i = 0; i < data.getCount(); i++) {
-                data.moveToPosition(i);
-                Timber.d("HISTORY="+data.getFloat(Contract.Quote.POSITION_HISTORY));
+            String history = data.getString(Contract.Quote.POSITION_HISTORY);
+            history = history.trim();
+            Timber.d("DATA="+history);
+            String[] splitHistory = history.split("\n");
+            Timber.d("SPLIT="+splitHistory.length);
+
+            for (int i = 0; i < splitHistory.length; i++) {
+                String item = splitHistory[i];
+                String[] itemSplit = item.split(",");
+                Timber.d(getSimpleDateTime(Long.valueOf(itemSplit[0]))+"="+Float.parseFloat(itemSplit[1]));
                 //turn your data into Entry objects
-                entries.add(new Entry( data.getFloat(Contract.Quote.POSITION_HISTORY),
-                        data.getFloat(Contract.Quote.POSITION_PRICE)));
+
+                float x = 0F;
+                float y = 0F;
+                try {
+                    x = Float.parseFloat(itemSplit[1]);
+                    y = getSimpleDateTime(Long.valueOf(itemSplit[0]));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                entries.add(new Entry( y, x));
             }
 
-            LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+            Collections.sort(entries, new EntryXComparator());
+
+            LineDataSet dataSet = new LineDataSet(entries, "Stock price"); // add entries to dataset
             dataSet.setColor(getResources().getColor(R.color.colorPrimary));
-            dataSet.setValueTextColor(getResources().getColor(R.color.colorAccent)); // styling, ...
+            dataSet.setValueTextColor(getResources().getColor(R.color.colorAccent)); // styling
 
             LineData lineData = new LineData(dataSet);
             lineChart.setData(lineData);
             lineChart.invalidate(); // refresh
+
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
+
+    /**
+     * Convert date from milliseconds to d MMM yyyy hh:mm a
+     *
+     * @param millisec
+     * */
+    public static Float getSimpleDateTime(long millisec){
+        String formatedDate = "";
+        if(millisec!= 0) {
+            SimpleDateFormat userFormat = new SimpleDateFormat("ddMMyy");
+            formatedDate = userFormat.format(millisec);
+        }
+
+        return Float.parseFloat(formatedDate);
+    }
+
 }

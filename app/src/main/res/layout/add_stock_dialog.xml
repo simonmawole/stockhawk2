@@ -8,7 +8,6 @@
         android:id="@+id/dialog_stock"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/type_stock_symbol"
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"

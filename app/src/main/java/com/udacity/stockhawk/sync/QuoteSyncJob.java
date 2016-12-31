@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.widget.Toast;
 
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
@@ -33,10 +32,10 @@ public final class QuoteSyncJob {
 
     private static final int ONE_OFF_ID = 2;
     public static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
-    private static final int PERIOD = 1000; //300000
-    private static final int INITIAL_BACKOFF = 10000;
+    private static final int PERIOD = 300000; //300000
+    private static final int INITIAL_BACKOFF = 10000;//10000
     private static final int PERIODIC_ID = 1;
-    private static final int YEARS_OF_HISTORY = 2;
+    private static final int YEARS_OF_HISTORY = 1;//2
 
     private QuoteSyncJob() {
     }
